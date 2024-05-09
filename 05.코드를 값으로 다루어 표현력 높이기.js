@@ -2,22 +2,27 @@ const products = [
   {
     name: 'tshirt',
     price: 15000,
+    quantity: 3,
   },
   {
     name: 'phone case',
     price: 15000,
+    quantity: 2,
   },
   {
     name: 'one piece',
     price: 20000,
+    quantity: 4,
   },
   {
     name: 'pants',
     price: 30000,
+    quantity: 5,
   },
   {
     name: 'hat',
     price: 35000,
+    quantity: 6,
   },
 ];
 
@@ -137,3 +142,28 @@ go(
   products,
   base_total_price((p) => p.price >= 20000)
 );
+
+//총 수량, 총 가격
+
+/* 이 코드의 중복을 줄이기 위해 sum이라는 함수를 생성 */
+const total_quantity_before = pipe(
+  map((p) => p.quantity),
+  reduce((a, b) => a + b)
+);
+
+const total_price_before = pipe(
+  map((p) => p.price),
+  reduce((a, b) => a + b)
+);
+
+const sum = curry((f, iter) =>
+  go(
+    iter,
+    map(f),
+    reduce((a, b) => a + b)
+  )
+);
+
+const total_quantity = sum((p) => p.quantity);
+
+const total_price2 = sum((p) => p.price * quantity);
