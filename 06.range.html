@@ -1,0 +1,62 @@
+# range
+
+<script>
+  const add = (a, b) => a + b;
+
+  const range = (length) => {
+    let i = -1;
+    let res = [];
+    while (++i < length) {
+      res.push(i);
+    }
+    return res;
+  };
+
+  var list = range(4);
+  console.log(list); //[ 0, 1, 2, 3 ]
+  console.log(list.reduce(add)); //6
+</script>
+
+#느긋한 Lazy.range
+
+<br />
+어떤 값의 평가를 미루다가 해당 값이 사용되는 곳에서 평가를 하겠다는 의미.
+=평가를 지연해두고 이후에 지연 평가를 할 수 있다!
+
+<br />
+이터러블을 이터레이터로 만든 후에 안에 있는 값을 하나씩 조회하면서 결과를 만들기
+때문에 이 결과를 만듦 위의 식에서 range와 Lazy.range는 for~ of~를 돌렸을 때 같은
+결과가 나온다. 하지만 range는 배열을 length개로 만들고 기다리다가 그 값을 for
+of로 순회하고, Lazy.range는 배열을 만들지 않고 for of를 순회할 때 값을
+생성하면서 순회하게 된다. 즉, 순회(평가)하기 전에는 Lazy.range안에 있는 로직은
+실행되지 않는다.
+
+<br />
+- 제너레이터를 통한 지연 평가는 성능을 튜닝할 수 있다라는 의미 보다 말그대로
+무한수열을 다룰 수 있다는 점에서 의미가 있습니다. 무한수열을 다룰 수 있어서 할
+수 있는 일들은 복잡한 로직을 아주 쉽게 표현할 수 있게 하는 장점이 있다.
+
+<script>
+  const Lazy = {};
+  Lazy.range = function* (length) {
+    let i = -1;
+    while (++i < length) {
+      yield i;
+    }
+  };
+
+  var list = Lazy.range(4);
+  console.log(list); //Lazy.range {<suspended>}
+  // L.range "{<suspended>} 가 뜨는데 이것은 iterator 임. reduce 함수가 이터러블이기 때문.
+  console.log(list.reduce(add)); //6
+
+  //효율성 차이 테스트
+  function test(name, time, f) {
+    console.time(name);
+    while (time--) f();
+    console.timeEnd(name);
+  }
+
+  test('range', 10, () => Lazy.range(1000000).reduce(add)); //range: 223.5830078125 ms
+  test('Lazy.range', 10, () => Lazy.range(1000000).reduce(add)); //Lazy.range: 218.10498046875 ms
+</script>
